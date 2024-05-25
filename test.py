@@ -31,3 +31,18 @@ def test_upload_invalid_extension():
     response = client.post("/upload", files=files)
     assert response.status_code == 400
     assert response.json()['detail'] == "File is not an .img file"
+
+def test_upload_non_image_file():
+    # Создаем временный текстовый файл
+    text_file = io.BytesIO(b"This is not an image")
+    text_file.seek(0)
+
+    # Сохраняем текстовый файл с расширением .img
+    files = {'file': ('test.img', text_file, 'text/plain')}
+    response = client.post("/upload", files=files)
+    assert response.status_code == 400
+    assert response.json()['detail'] == "File is not a valid image"
+
+def test_upload_no_file():
+    response = client.post("/upload")
+    assert response.status_code == 422  # Ошибка валидации, так как файл не был отправлен
